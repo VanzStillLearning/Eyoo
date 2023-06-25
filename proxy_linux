@@ -1,0 +1,705 @@
+tile = {
+pos1 = { 
+{x = 60, y = 24}, {x = 60, y = 23}, {x = 60, y = 22} 
+},
+pos2 = {
+{x = 56, y = 24}, {x = 56, y = 23}, {x = 56, y = 22}
+}
+}
+
+Count = 0;
+Data = {}
+
+
+taxdialog = "\nadd_label_with_icon|big|`wHow Much Tax|left|758|".. 
+            "\nadd_spacer|small||".. 
+            "\nadd_text_input|Taxlol|Set Tax % :||12|".. 
+            "\nadd_spacer|small||".. 
+            "\nadd_textbox|`4Set Our Tax Can 2.5/10 %|"..
+            "\nend_dialog|tx|Cancel|OK|"
+     
+wrenchop = "\nadd_label_with_icon|big|`5Wrench Mode|left|11816|".. 
+            "\nadd_spacer|small|".. 
+            "\ntext_scaling_string|asdasdasdsaas|".. 
+            "\nadd_button_with_icon|wdef|`wWrench Default|staticBlueFrame|278||".. 
+            "\nadd_button_with_icon|wpull|`wWrench Pull|staticBlueFrame|274||".. 
+            "\nadd_button_with_icon|wkick|`wWrench Kick|staticBlueFrame|276||".. 
+            "\nadd_button_with_icon|wban|`wWrench Ban|staticBlueFrame|732||".. 
+            "\nadd_button_with_icon||END_LIST|noflags|0||".. 
+            "\nadd_spacer|small|".. 
+            "\nend_dialog|wh|Ok|"
+
+lol = [[add_player_info|Hi Pekuy|123|999999999999999999999999999|9999999999999999999999999999999999|
+add_spacer|small|
+add_spacer|small|
+add_button_with_icon|Tax|Setting You'r Tax Here|staticBlueFrame|758|
+add_button_with_icon|Wrench|Wrench List|staticBlueFrame|32|
+add_button_with_icon|cbgl|`wC Bgl Mode|staticBlueFrame|7188||
+add_button_with_icon|Proxy|Proxy Command|staticBlueFrame|10864|
+add_button_with_icon|Skin|Skin List|staticBlueFrame|3670|
+add_button_with_icon|dupe|dupe Cpp Zps Only|staticBlueFrame|8|
+end_dialog|kk||
+add_quick_exit|
+]]
+
+skindialog = "\nadd_label_with_icon|big|`oSkin Character Option|left|32|".. 
+            "\nadd_image_button|banner|interface/large/news_bannerrttex|bannerlayout|||".. 
+            "\nadd_spacer|smal|".. 
+            "\nadd_button|shitam|`bSkin Hitam|NOFLAGS|0|"..  
+            "\nadd_spacer|small|"..   
+            "\nadd_button|sputih|`oSkin Putih (Biasa No Supporter)|NOFLAGS|0|"..  
+            "\nadd_spacer|small|"..   
+            "\nadd_button|blinkon|`bBlink `0Color|NOFLAGS|0|"..  
+            "\nadd_spacer|small|"..   
+            "\nadd_button|blinkoff|`4Off Blink Color|NOFLAGS|0|"..  
+            "\nadd_spacer|smal|"..              
+            "\nadd_textbox|`#CHANGE YOUR SKIN COLOR IN HERE|left|2480|"..              
+            "\nend_dialog|sk|Back|"                                        
+           
+dpe = [[add_label_with_icon|big|Dupe Cpp Zps Only|left|8|
+add_textbox|Cari ID Item Pakai /Finditem [item yg pengen di dupe]
+add_text_input|dupe|ID||6|
+add_spacer|small||
+end_dialog|wle|Cancel|Enter|
+]]
+
+proxydialog = "\nadd_label_with_icon|big|`5Devil Proxy Menu|left|1790|".. 
+            "\nadd_smalltext|Hello, `2Orang Tolol|".. 
+            "\nadd_url_button||`2Join Whatsapp Group|noflags|Orang Tolol/1slGK||0|0|]] .. [[".. 
+            "\nadd_textbox|Version: 5|left||"..
+            "\nadd_spacer|small|".. 
+            "\ntext_scaling_string|asdasdasdsaas|".. 
+            "\nadd_button_with_icon|proxylist|`wFull Menu Proxy|staticBlueFrame|7340||".. 
+            "\nadd_button_with_icon|skino|`wSkin Option|staticBlueFrame|3774||".. 
+            "\nadd_button_with_icon|wrencho|`wWrench Option|staticBlueFrame|32||".. 
+            "\nadd_button_with_icon|taxp|`wTax Panel|staticBlueFrame|758||".. 
+            "\nadd_button_with_icon|sosmed|`wSocial Media|staticBlueFrame|656||".. 
+            "\nadd_button_with_icon||END_LIST|noflags|0||".. 
+            "\nadd_spacer|small|".. 
+            "\nend_dialog|kk|Ok|"
+
+
+local fastwheel = true
+local lastspin = true
+local remek = true
+local autocbgl = false
+local teledl = false
+
+function DropItem(id, count)
+SendPacket(2, "action|dialog_return\ndialog_name|drop\nitem_drop|"..id.."|\nitem_count|"..count.."\n")
+SendPacket(2, "action|dialog_return\ndialog_name|drop_item\nitemID|"..id.."|\ncount|"..count.."\n")
+end
+
+function skip(x, y)
+if math.abs(GetLocal().posX // 32 - x) > 11 or math.abs(GetLocal().posY // 32 - y) > 10 then
+return nil
+end
+if GetTiles(x, y).collidable then
+return nil
+end
+local Z = 0
+if not GetTiles(x + 1, y).collidable then
+Z = 1
+elseif not GetTiles(x - 1, y).collidable then
+Z = -1
+else
+return nil
+end
+SendPacketRaw(false, { type = 0, x = (x + Z) * 32, y = (y-1)* 32, state = (Z == 1 and 48 or 32) })
+end
+
+function dl()
+for _, v in pairs(GetInventory()) do
+if v.id == 1796 then
+log("`2Succes Drop All `0"..v.amount.." `2Diamond Lock")
+SendPacket(2, "action|dialog_return\ndialog_name|drop\nitem_drop|1796|\nitem_count|"..v.amount.."\n");
+end
+end
+end
+
+function wl()
+for _, v in pairs(GetInventory()) do
+if v.id == 242 then
+log("`2Succes Drop All `0"..v.amount.." `2World Lock")
+SendPacket(2, "action|dialog_return\ndialog_name|drop\nitem_drop|242|\nitem_count|"..v.amount.."\n");
+end
+end
+end
+
+function bgl()
+for _, v in pairs(GetInventory()) do
+if v.id == 7188 then
+log("`2Succes Drop All `0"..v.amount.." `2Blue Gem Lock")
+SendPacket(2, "action|dialog_return\ndialog_name|drop\nitem_drop|7188|\nitem_count|"..v.amount.."\n");
+end
+end
+end
+
+function Data()
+Amount = 0
+for _, list in pairs(data) do
+Name = ""
+if list.id == 7188 then
+Name = "Blue Gem Lock"
+Amount = Amount + list.count * 10000
+elseif list.id == 1796 then
+Name = "Diamond Lock"
+Amount = Amount + list.count * 100
+elseif list.id == 242 then
+Name = "World Lock"
+Amount = Amount + list.count
+end
+SendVariant({v0="OnTalkBubble", v1=GetLocal().netID, v2="Collected `9"..list.count.." "..Name})
+end
+data = {}
+end
+
+function back()
+pkt = {}
+pkt.x = GetLocal().posX
+pkt.y = GetLocal().posY
+pkt.px = GetLocal().punchX
+pkt.py = GetLocal().punchY
+pkt.xspeed = GetLocal().xspeed
+pkt.yspeed = GetLocal().yspeed
+SendPacketRaw(false, pkt)
+end
+
+function take(a,b,c)
+pkt = {}
+pkt.x = a;
+pkt.y= b;
+pkt.type = 11;
+pkt.value = c;
+SendPacketRaw(false, pkt);
+end
+
+function colect()
+tiles = {
+    {posx1, posy1}, 
+    {posx2, posy2}
+    }
+    for _, obj in pairs(GetObjectList()) do
+        for _, tiles in pairs(tiles) do
+            if (obj.posX)//32 == tiles[1] and (obj.posY)//32 == tiles[2] then
+                local pkt = {} 
+                pkt.type = 11
+                pkt.value = obj.id
+                pkt.x = obj.posX
+                pkt.y = obj.posY
+                SendPacketRaw(false, pkt)
+table.insert(data, {id=obj.itemid, count=obj.amount})
+            end
+        end
+    end
+Data()
+end
+
+function takes1()
+for _, obj in pairs(GetObjectList()) do
+if obj.posX//32 == PX2 and obj.posY//32 == PY2 then
+take(obj.poaX,obj.posY,obj.id)
+end
+end
+end
+
+function ovlay(str)
+var = {}
+var.v0 = "OnTextOverlay"
+var.v1 = str
+SendVariant(var)
+end
+
+function wear(id)
+pkt = {}
+pkt.type = 10
+pkt.value = id
+SendPacketRaw(false, pkt)
+end
+
+
+function log(txt)
+LogToConsole("`o[`cSlemek#001`o] "..txt)
+end
+
+function custom_command(type, packet)
+clog = "action|input\n|text|"
+  
+if packet:find("/proxy") then -- command
+-- ini tempat sc
+var = {}
+var.v0 = "OnDialogRequest"
+var.v1 = proxylist
+SendVariant (var);
+log("8All Command")
+-- ini tempat sc
+return true -- return client (untuk menghilangkan log undefinied command)
+end -- akhir dari command /info
+
+if packet:find("friends") then
+-- ini tempat sc 
+var = {}
+var.v0 = "OnDialogRequest"
+var.v1 = lol
+SendVariant (var);
+log("Proxy List")
+-- ini tempat medsos
+return true -- return client (untuk menghilangkan log undefinied command)
+end -- akhir dari command /info
+
+if packet:find("action|dialog_return\ndialog_name|kk\nbuttonClicked|Wrench") then
+-- ini tempat sc 
+var = {}
+var.v0 = "OnDialogRequest"
+var.v1 = wrenchop
+SendVariant (var);
+log("Wrench Option")
+-- ini tempat medsos
+return true -- return client (untuk menghilangkan log undefinied command)
+end -- akhir dari command /info
+
+if packet:find("buttonClicked|dupe") then
+var = {}
+var.v0 = "OnDialogRequest"
+var.v1 = dpe
+SendVariant (var);
+log("Dupe Option")
+return true
+end
+
+
+if packet:find("action|dialog_return\ndialog_name|kk\nbuttonClicked|Skin") then
+-- ini tempat sc 
+var = {}
+var.v0 = "OnDialogRequest"
+var.v1 = skindialog
+SendVariant (var);
+log("Skin Option")
+-- ini tempat medsos
+return true -- return client (untuk menghilangkan log undefinied command)
+end -- akhir dari command /info
+
+if packet:find("buttonClicked|cbgl") then
+    if autocbgl == false then
+        autocbgl = true
+        ovlay("`2Change Bgl Mode Enabled")
+    else
+        autocbgl = false
+        ovlay("`4Change Bgl Mode Disabled")
+     end
+return true
+end
+
+if packet:find("action|dialog_return\ndialog_name|kk\nbuttonClicked|Tax") then
+-- ini tempat sc 
+var = {}
+var.v0 = "OnDialogRequest"
+var.v1 = taxdialog
+SendVariant (var);
+log("Tax Option")
+-- ini tempat medsos
+return true -- return client (untuk menghilangkan log undefinied command)
+end -- akhir dari command /info
+
+
+if packet:find("action|dialog_return\ndialog_name|kk\nbuttonClicked|sosmed") then
+-- ini tempat sc 
+var = {}
+var.v0 = "OnDialogRequest"
+var.v1 = medsos
+SendVariant (var);
+log("Media Sosial Owner")
+-- ini tempat medsos
+return true -- return client (untuk menghilangkan log undefinied command)
+end -- akhir dari command /info
+
+    if packet:find(clog .. "/dd") then
+ txt = packet:gsub("action|input\n|text|/dd", "")
+if txt == "" then
+log("Write Amount")
+else
+SendPacket(2, "action|dialog_return\ndialog_name|drop\nitem_drop|1796|\nitem_count|"..txt.."\n")
+SendPacket(2, "action|dialog_return\ndialog_name|drop_item\nitemID|1796|\ncount|"..txt.."\n")
+SendVariant({v0="OnTalkBubble", v1=GetLocal().netID, v2="Succes Drop `0"..txt.." `2Diamond Lock"})
+return false
+end
+end
+
+ if packet:find(clog .. "/wd") then
+ txt = packet:gsub("action|input\n|text|/wd", "")
+if txt == "" then
+log("Write Amount")
+else
+SendPacket(2, "action|dialog_return\ndialog_name|drop\nitem_drop|242|\nitem_count|"..txt.."\n")
+SendPacket(2, "action|dialog_return\ndialog_name|drop_item\nitemID|242|\ncount|"..txt.."\n")
+SendVariant({v0="OnTalkBubble", v1=GetLocal().netID, v2="Succes Drop `0"..txt.." `2World Lock"})
+return false
+end
+end
+
+if packet:find("|wpull") then
+SendPacket(2,"action|input\n|text|/wrench 1")
+ovlay("`cWrench Pull")
+return true
+end
+
+if packet:find("|wkick") then
+SendPacket(2,"action|input\n|text|/wrench 2")
+ovlay("`cWrench Pull")
+return true
+end
+
+if packet:find("|wban") then
+SendPacket(2,"action|input\n|text|/wrench 3")
+ovlay("`cWrench Ban")
+return true
+end
+
+if packet:find("|wdef") then
+SendPacket(2,"action|input\n|text|/wrench 0")
+ovlay("`cWrench Mode Default")
+return true
+end
+
+if packet:find("dupe|(%d+)") then
+txt = packet:match("dupe|(%d+)")
+SendPacket(2,"action|dialog_return\ndialog_name|nupirkti\nname|blue gem lock|\npirkti_id|"..txt.."|\npirkti_kaina|0|\n")
+ovlay("`4Succes Dupe Id Item "..txt.."")
+return true
+end
+
+if packet:find("/dl") then
+    if teledl == false then
+        teledl = true
+        ovlay("`2Buy Dls Mode")
+    else
+        teledl = false
+        ovlay("`4Buy Dls Mode")
+     end
+return true
+end
+
+if packet:find("/trd ") then
+txt = packet:gsub("action|input\n|text|/trd ","")
+if txt == "" then
+ovlay("`4ID ITEM")
+else
+sendpacket(2,"action|dialog|return\ndialog_name|trade_item\nitemID|"..txt.."|\nitem_count|1\n")
+SendPacket(2,"action|trade_accept\nstatus|1\n")
+ovlay("DONE SIRR")
+return true
+end
+end
+
+if packet:find("/acc") then
+SendPacket(2,"action|dialog_return\ndialog_name|popup\nbuttonClicked|acceptlock\n")
+SendPacket(2,"action|dialog_return\ndialog_name|acceptacces\n")
+ovlay("`bDone Acces")
+return true
+end
+
+ if packet:find(clog .. "/bd") then
+ txt = packet:gsub("action|input\n|text|/bd", "")
+if txt == "" then
+log("Write Amount")
+else
+SendPacket(2, "action|dialog_return\ndialog_name|drop\nitem_drop|7188|\nitem_count|"..txt.."\n")
+SendPacket(2, "action|dialog_return\ndialog_name|drop_item\nitemID|7188|\ncount|"..txt.."\n")
+SendVariant({v0="OnTalkBubble", v1=GetLocal().netID, v2="`2Succes Drop `0"..txt.." `2Blue Gem Lock"})
+return false
+end
+end
+
+if packet:find("/cd") then
+ah = packet:gsub("action|input\n|text|/cd","")
+if cd == "" then
+ovlay("`4Write Ammount")
+else
+ngewe = ah
+local dl = ngewe//100
+local wl = ngewe%100
+wear(1796)
+wear(7188)
+SendPacket(2, "action|dialog_return\ndialog_name|drop\nitem_drop|242|\nitem_count|"..wl.."\n")
+SendPacket(2, "action|dialog_return\ndialog_name|drop_item\nitemID|242|\ncount|"..wl.."\n")
+SendPacket(2, "action|dialog_return\ndialog_name|drop\nitem_drop|1796|\nitem_count|"..dl.."\n")
+SendPacket(2, "action|dialog_return\ndialog_name|drop_item\nitemID|1796|\ncount|"..dl.."\n")
+ovlay("`9Succes Drop`0 "..dl.." `1Diamond Lock`0 "..wl.." `9World Lock")
+wear(242)
+return false
+end
+end
+
+if packet:find("/put ") then
+id = packet:gsub("action|input\n|text|/put ","")
+if id == "" then
+log("`cID item?")
+else
+SendPacket(2,"action|dialog_return\ndialog_name|trade_itemÏ=Î¾^JÐ'Ï~¹°?­n4¿“û¿÷ÛÜß$o2«„x˜Ü?ø/Ií]§Ïž‘«ÚÏ6Ï=Î¾^JÐ'Ï~¹°?­n4¿“û¿÷'Ï~¹°?­n4¿“û¿÷ÛÜß$ÛÜß$o2«„x˜Ü?ø/Ií]§Ïž‘«ÚÏ6ÏzÏzÏ=Î¾^JÐÏ=Î¾^JÐo2«„x˜Ü?ø/Ií]§Ïž‘«ÚÏ6Ïzo2«„x˜Ü?ø/Ií]§Ïž‘«ÚÏ6Ï=Î¾^JÐo2«„x˜Ü?ø/Ií]§Ïž‘«ÚÏ6trade_item\nitemID|"..id.."|\nitem_count|1\n")
+ovlay("`cDone U Trade Untradeable Item Omaga")
+return true
+end
+end
+
+if packet:find("Taxlol|(%d+)") then
+Tax = packet:match("Taxlol|(%d+)")
+ovlay("Tax Set To "..Tax.."%") 
+end
+
+if packet:find("/tk") then
+LogToConsole("`9Command : /tk")
+colect()
+tax = math.floor(Amount * Tax / 100)
+drop = Amount - tax
+SendVariant({v0="OnTalkBubble", v1=GetLocal().netID, v2="`2Colected : "..Amount..", Tax : `4"..Tax.."%, `4Total drop : `9"..drop})
+SendVariant({v0="OnTalkBubble", v1=GetLocal().netID, v2="`9Succes Take"})
+return true
+end
+
+if packet:find("/p1") then
+LogToConsole("`9Command : /p1")
+posx1 = GetLocal().posX//32
+posy1 = GetLocal().posY//32
+return true
+
+elseif packet:find("/p2") then
+LogToConsole("`9Command : /p2")
+posx2 = GetLocal().posX//32
+posy2 = GetLocal().posY//32
+return true
+end
+
+data = {}
+function collect()
+for _, obj in pairs(GetObjectList()) do
+for _, tiles in pairs(tile.pos1) do
+if obj.itemid == 112 and (obj.posX)//32 == tiles.x and (obj.posY)//32 == tiles.y then
+Count = Count + obj.amount
+local pkt = {}
+pkt.type = 11
+pkt.value = obj.id
+pkt.x = obj.posX
+pkt.y = obj.posY
+SendPacketRaw(false, pkt)
+end
+end
+end
+table.insert(data, Count)
+Count = 0
+for _, obj in pairs(GetObjectList()) do
+for _, tiles in pairs(tile.pos2) do
+if obj.itemid == 112 and (obj.posX)//32 == tiles.x and (obj.posY)//32 == tiles.y then
+local pkt = {}
+pkt.type = 11
+pkt.value = obj.id
+pkt.x = obj.posX;pkt.y = obj.posY
+SendPacketRaw(false, pkt)
+Count = Count + obj.amount
+end
+end
+end
+table.insert(data, Count)
+Count=0
+if data[1] > data[2] then
+SendPacket(2,"action|input\n|text|`0 [`2Win`0] `2Pos 1 : `9"..data[1].." `4, Pos 2 : `9"..data[2].." `0(`4Lose`0)")
+bgl =math.floor(drop/10000)
+drop = drop - bgl*10000 
+dl = math.floor(drop/100)
+wl = drop % 100
+skip(posx1, posy1)
+wear(1796)
+wear(7188)
+DropMode = true
+hasil = (bgl ~= 0 and bgl.."Blue Gem Lock" or "").." "..(dl ~= 0 and dl.."Diamond Lock" or "").." "..(wl ~= 0 and wl.."World Lock" or "")
+SendVariant({v0="OnTalkBubble", v1=GetLocal().netID, v2="`9Amount Lock : "..Amount..", Tax : "..Tax.."%, Total drop : "..hasil})
+elseif data[1] == data[2] then
+SendPacket(2,"action|input\n|text|`0 Pos 1 : `9"..data[1].."`0, Pos 2 : `9"..data[2].." (Tie)")
+else
+SendPacket(2,"action|input\n|text|`0 [`4Lose`0] `4Pos 1 : `9"..data[1].."`2, Pos 2 : `9"..data[2].." `0(`2Win`0)")
+bgl =math.floor(drop/10000)
+drop = drop - bgl*10000 
+dl = math.floor(drop/100)
+wl = drop % 100
+skip(posx2, posy2)
+wear(1796)
+wear(7188)
+DropMode = true
+hasil = (bgl ~= 0 and bgl.."Blue Gem Lock" or "").." "..(dl ~= 0 and dl.."Diamond Lock" or "").." "..(wl ~= 0 and wl.."World Lock" or "")
+SendVariant({v0="OnTalkBubble", v1=GetLocal().netID, v2="`9Amount Lock : "..Amount..", Tax : "..Tax.."%, Total drop : "..hasil})
+end
+data = {}
+end
+
+if packet:find("/win") then
+collect()
+return true
+end
+
+data = {}
+function colllect()
+for _, obj in pairs(GetObjectList()) do
+for _, tiles in pairs(tile.pos1) do
+if obj.itemid == 112 and (obj.posX)//32 == tiles.x and (obj.posY)//32 == tiles.y then
+Count = Count + obj.amount
+local pkt = {}
+pkt.type = 11
+pkt.value = obj.id
+pkt.x = obj.posX
+pkt.y = obj.posY
+SendPacketRaw(false, pkt)
+end
+end
+end
+table.insert(data, Count)
+Count = 0
+for _, obj in pairs(GetObjectList()) do
+for _, tiles in pairs(tile.pos2) do
+if obj.itemid == 112 and (obj.posX)//32 == tiles.x and (obj.posY)//32 == tiles.y then
+local pkt = {}
+pkt.type = 11
+pkt.value = obj.id
+pkt.x = obj.posX;pkt.y = obj.posY
+SendPacketRaw(false, pkt)
+Count = Count + obj.amount
+end
+end
+end
+table.insert(data, Count)
+Count=0
+if data[1] > data[2] then
+SendPacket(2,"action|input\n|text|`0 Pos 1 : `9"..data[1].." `0, Pos 2 : `9"..data[2])
+elseif data[1] == data[2] then
+SendPacket(2,"action|input\n|text|`0 Pos 1 : `9"..data[1].."`0, Pos 2 : `9"..data[2])
+else
+SendPacket(2,"action|input\n|text|`0 Pos 1 : `9"..data[1].."`0, Pos 2 : `9"..data[2])
+end
+data = {}
+end
+
+if packet:find("/ck") then
+colllect()
+return true
+end
+
+if packet:find(clog .. "/daw") then
+bgl()
+dl()
+wl()
+return true
+end
+
+
+return false
+end
+
+function variantlist(var)
+
+if var.v1 == "OnTalkBubble" then
+if fastwheel == true then
+if var.v3:find("wspun the wheel") then
+SendVariant({v0 = var.v1, v1 = var.v2, v2 = "`7[`4FAKE`w] ````" ..var.v3, v3 = var.v4})
+return true
+end
+end
+end
+
+if var.v1 == "OnTalkBubble" then
+if fastwheel == true then
+if var.v3:find("spun the wheel") then
+SendVariant({v0 = var.v1, v1 = var.v2, v2 = "`7[`2REAL`w] ````" ..var.v3, v3 = var.v4})
+return true
+end
+end
+end
+
+if var.v2:find("Collected") then
+Log(var.v2)
+return true
+end
+
+if var.v1:find("OnConsoleMessage") and var.v2:find("compress") then
+wear(242)
+return true
+end
+
+-- Block Var Succes
+    if var.v1 == "OnDialogRequest" then
+          if var.v2:find("Wow, that's fast delivery.") then
+             SendVariant({v0="OnTalkBubble", v1=GetLocal().netID, v2="Succes C Bgl"})
+             return true
+          end
+        end
+
+ if var.v1 == "OnDialogRequest" then
+    if autocbgl == true then
+        x = var.v2:match("|x|(%d+)")
+        y = var.v2:match("|y|(%d+)")
+        if var.v2:find("Phone #") then
+            SendPacket(
+                2,
+                "action|dialog_return\ndialog_name|telephone\nx|" ..
+                    x .. "|\ny|" .. y .. "|\nnum|53785|\nbuttonClicked|bglconvert"
+            )
+        elseif var.v2:find("Excellent%!") then
+            num = var.v2:match("num|%-(%d+)")
+            SendPacket(
+                2,
+                "action|dialog_return\ndialog_name|telephone\nx|" ..
+                    x .. "|\ny|" .. y .. "|\nnum|-" .. num .. "|\nbuttonClicked|bglconvert"
+            )
+            pkt = {}
+            pkt.type = 10
+            pkt.value = 7188
+            SendPacketRaw(false, pkt)
+        end
+        return true
+    end
+end
+
+-- Ececute Tele DLs
+    if var.v1 == "OnDialogRequest" then
+    if teledl == true then
+        if var.v2:find("Telephone") then
+      x = var.v2:match("|x|(%d+)")
+      y = var.v2:match("|y|(%d+)")      
+SendPacket(2,"action|dialog_return\ndialog_name|telephone\nnum|53785|\nx|"..x.."|\ny|"..y.."|\nbuttonClicked|dlconvert")
+return true
+end
+end
+end        
+
+
+
+return false
+end
+
+AddHook(variantlist, "OnVariant")
+AddHook(freedl, "OnVariant")
+AddHook(custom_command, "OnSendPacket")
+AddHook(sendpacketraw, "OnSendPacketRaw")
+ovlay("`6Proxy Started, Type `4/proxy to show Feature")
+Sleep(3000)
+ovlay("`cWelcome To My Script #1 Script Masih Beta")
+
+while true do
+Sleep(500)
+if DropMode then
+Sleep(200)
+if bgl > 0 then
+DropItem(7188, bgl)
+Sleep(500)
+end
+if dl > 0 then
+DropItem(1796, dl)
+Sleep(500)
+end
+if wl > 0 then
+DropItem(242, wl)
+Sleep(500)
+end
+drop = nil
+DropMode = false
+SendVariant({v0="OnTalkBubble", v1=GetLocal().netID, v2="`9Tax reset"})
+back()
+end
+end
